@@ -11,7 +11,7 @@ export const Navuser = () => {
                     <Link href="/auth/sign-in" passHref className="w-full">
                         <Button size="sm" variant="outline" className="w-full">
                             <LogIn />
-                            Entrar
+                            <p className="group-data-[state=collapsed]:hidden">Entrar</p>
                         </Button>
                     </Link>
                 </div>
