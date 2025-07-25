@@ -1,4 +1,7 @@
+"use client";
+
 import { SidebarGroup, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "@/components/ui/sidebar"
+import { useUser } from "@clerk/nextjs";
 import { Separator } from "@radix-ui/react-separator";
 import { BookOpen, BookUp2, ChartArea, MessageCircle, SquareDashedBottomCode, Trophy, Users } from "lucide-react"
 import Link from "next/link";
@@ -10,6 +13,10 @@ type NavItem = {
 }
 
 export const NavItems = () => {
+    const { user } = useUser();
+
+    const isAdmin = user?.publicMetadata?.role === "admin";
+
     const navItems: NavItem[] = [
         {
             label: "Cursos",
@@ -68,10 +75,13 @@ export const NavItems = () => {
         <SidebarGroup>
             <SidebarMenu>
                 {renderNavItems(navItems)}
+                {isAdmin && (
+                    <>
+                        <Separator className="my-2" />
 
-                <Separator className="my-2" />
-
-                {renderNavItems(adminNavItems)}
+                        {renderNavItems(adminNavItems)}
+                    </>
+                )}
             </SidebarMenu>
         </SidebarGroup>
     )
