@@ -14,6 +14,7 @@ export const TagItem = ({ tag }: TagItemProps) => {
     const pathName = usePathname();
     const searchParams = useSearchParams();
     const currentIds = searchParams.getAll("tags");
+    const currentQuery = searchParams.get("query");
 
     const isSelected = currentIds.includes(tag.id);
 
@@ -21,6 +22,7 @@ export const TagItem = ({ tag }: TagItemProps) => {
         const url = qs.stringifyUrl({
             url: pathName,
             query: {
+                query: currentQuery,
                 tags: isSelected ? currentIds.filter((id) => id !== tag.id) : [...currentIds, tag.id],
             }
         }, { skipEmptyString: true, skipNull: true, }
