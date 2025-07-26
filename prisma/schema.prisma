@@ -19,3 +19,73 @@ model user {
 
   @@map("users")
 }
+
+model CourseTag {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  courseId  String?
+  course    Course?  @relation(fields: [courseId], references: [id])
+
+  @@map("course_tags")
+}
+
+enum CourseStatus {
+  DRAFT
+  PUBLISHED
+}
+
+enum CourseDifficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
+model Course {
+  id               String           @id @default(uuid())
+  status           CourseStatus     @default(DRAFT)
+  title            String
+  slug             String
+  description      String           @unique
+  shortDescription String?
+  thumbnail        String
+  price            Float
+  discountPrice    Float?
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  tags             CourseTag[]
+  modules          CourseModule[]
+  difficulty       CourseDifficulty @default(EASY)
+
+  @@map("courses")
+}
+
+model CourseModule {
+  id          String         @id @default(uuid())
+  title       String
+  description String
+  courseId    String
+  order       Int
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  course      Course         @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  lessons     CourseLesson[]
+
+  @@map("course_modules")
+}
+
+model CourseLesson {
+  id           String       @id @default(uuid())
+  title        String
+  description  String
+  videoId      String
+  durationInMs Int
+  order        Int
+  moduleId     String
+  module       CourseModule @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  @@map("course_lessons")
+}
