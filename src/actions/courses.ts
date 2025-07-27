@@ -36,6 +36,5 @@ export const getCourses = async ({ query, tags: rawTags }: GetCoursesPayload) =>
         },
     })
 
-    console.log(course)
     return course;
 }
