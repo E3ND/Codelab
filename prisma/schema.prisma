@@ -47,8 +47,8 @@ model Course {
   id               String           @id @default(uuid())
   status           CourseStatus     @default(DRAFT)
   title            String
-  slug             String
-  description      String           @unique
+  slug             String           @unique
+  description      String
   shortDescription String?
   thumbnail        String
   price            Float
