@@ -1,3 +1,5 @@
+"use server";
+
 import { prisma } from "@/lib/prisma";
 import { getUser } from "./user";
 
@@ -35,4 +37,59 @@ export const markLessonAsCompleted = async ({ lessonId, courseSlug }: CompleteLe
     });
 
     return completedLesson;
+}
+
+export const unmarkLessonAsCompleted = async (lessonId: string) => {
+    const { userId } = await getUser();
+
+    const completedLesson = await prisma.completedLesson.findFirst({
+        where: {
+            lessonId,
+            userId,
+        }
+    });
+
+    if(!completedLesson) return;
+
+    await prisma.completedLesson.delete({
+        where: {
+            id: completedLesson.id,
+        }
+    });
+}
+
+export const getCourseProgress = async (courseSlug: string) => {
+    const { userId } = await getUser();
+
+    const course = await prisma.course.findUnique({
+        where: {
+            slug: courseSlug
+        },
+        include: {
+            modules: {
+                select: {
+                    lessons: {
+                        select: {
+                            id: true,
+                        }
+                    }
+                }
+            }
+        }
+    })
+
+    if(!course) throw new Error("Course not found");
+
+    const completedLesson = await prisma.completedLesson.findMany({
+        where: {
+            userId,
+            courseId: course.id
+        }
+    })
+
+    const totalLesson = course.modules.flatMap((mod) => mod.lessons).length;
+    const completedLessonCount = completedLesson.length;
+    const progress = Math.round((completedLessonCount / totalLesson) * 100);
+
+    return { completedLesson, progress }
 }
