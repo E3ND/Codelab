@@ -1,8 +1,7 @@
+import { getCourseProgress } from "@/actions/course-progress";
 import { getCourse } from "@/actions/courses";
-import { LessonDetails } from "@/components/pages/courses/course-page/lesson-details";
-import { ModuleList } from "@/components/pages/courses/course-page/modules-list";
-import { TopDetails } from "@/components/pages/courses/course-page/top-details";
-import { notFound } from "next/navigation";
+import { Skeleton } from "@/components/ui/skeleton";
+import { notFound, redirect } from "next/navigation";
 
 type CoursePageProps = {
     params: Promise<{ slug: string }>
@@ -12,17 +11,28 @@ export default async function CoursePage({ params }:CoursePageProps) {
     const { slug } = await params;
     const { course } = await getCourse(slug);
 
-    if(!course) return notFound()
+    if(!course) return notFound();
+    
+    const { completedLesson } = await getCourseProgress(slug);
+    
+    const allLessons = course.modules.flatMap((mod) => mod.lessons);
+    let lessonToRedirect = allLessons[0];
+
+    const firstUncompletedLesson = allLessons.find((lesson) => {
+        const completed = completedLesson.some((completedLessons) => completedLessons.lessonId === lesson.id);
+
+        return !completed;
+    });
+
+    if(firstUncompletedLesson) {
+        lessonToRedirect = firstUncompletedLesson;
+    }
+
+    if(lessonToRedirect) {
+        redirect(`/courses/${slug}/${lessonToRedirect.moduleId}/lesson/${lessonToRedirect.id}`);
+    }
 
     return (
-        <div className="w-full h-screen overflow-hidden grid grid-cols-[1fr_auto]">
-            <div className="w-full h-full overflow-y-auto">
-                <TopDetails course={course} />
-
-                <LessonDetails lesson={course.modules[0].lessons[0]} />
-            </div>
-
-            <ModuleList modules={course.modules} />
-        </div>
+        <Skeleton className="flex-1" />
     )
 }

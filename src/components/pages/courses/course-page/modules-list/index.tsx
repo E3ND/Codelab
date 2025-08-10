@@ -20,7 +20,7 @@ export const ModuleList = ({ modules }: ModulesListProps) => {
     const params = useParams();
     const courseSlug = params.slug as string;
 
-    const moduleId = modules[0].id;
+    const moduleId = params.moduleId as string;
     const { expandedModue, setExpandedModule, modulesListCollapsed, setModulesListCollapsed } = usePreferencesStore()
     const initialCollapsedIsSet = useRef(false);
 

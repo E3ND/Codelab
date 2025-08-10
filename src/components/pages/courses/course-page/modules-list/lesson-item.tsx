@@ -18,10 +18,10 @@ export const LessonItem = ({ lesson }: LessonItemProps) => {
     
     const params = useParams();
     const courseSlug = params.slug as string;
+    const currentLessonId = params.lesssonId as string;
 
     const lessonId = lesson.id;
 
-    const currentLessonId = "asd";
     const completed = lesson.completed;
 
     const PrimaryIcon = completed ? CircleCheckBig : Video;
@@ -54,7 +54,7 @@ export const LessonItem = ({ lesson }: LessonItemProps) => {
                 lesson.id === currentLessonId && "text-white",
                 completed && "text-primary"
             )}
-            href={`/course/course-slug/module-id/lesson/${lesson.id}`}
+            href={`/courses/${courseSlug}/${lesson.moduleId}/lesson/${lesson.id}`}
         >
             <Tooltip content={completed ? "Marcar como não assistido" : "Marcar como assistido"}>
                 <button 
