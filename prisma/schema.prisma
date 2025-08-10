@@ -17,7 +17,8 @@ model User {
   imageUrl         String?
   createdAt        DateTime          @default(now())
   updatedAt        DateTime          @updatedAt
-  CompletedLessons CompletedLesson[]
+  completedLessons CompletedLesson[]
+  LessonComments   LessonComment[]
 
   @@map("users")
 }
@@ -90,6 +91,7 @@ model CourseLesson {
   createdAt        DateTime          @default(now())
   updatedAt        DateTime          @updatedAt
   completedLessons CompletedLesson[]
+  comments         LessonComment[]
 
   @@map("course_lessons")
 }
@@ -107,4 +109,21 @@ model CompletedLesson {
   user   User         @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("completed_lessons")
+}
+
+model LessonComment {
+  id       String  @id @default(uuid())
+  lessonId String
+  userId   String
+  content  String
+  parentId String?
+
+  lesson    CourseLesson    @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  user      User            @relation(fields: [userId], references: [id])
+  parent    LessonComment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies   LessonComment[] @relation("CommentReplies")
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+
+  @@map("lesson_comments")
 }
