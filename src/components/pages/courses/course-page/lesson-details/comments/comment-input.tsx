@@ -12,6 +12,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createLessonComment } from "@/actions/course.comments";
 import { queryKeys } from "@/constants/query-keys";
 import { useParams } from "next/navigation";
+import { toast } from "sonner";
 
 const formSchema = z.object({
     content: z
@@ -27,7 +28,10 @@ export const CommentInput = () => {
     const { user } = useUser();
     const queryClient = useQueryClient();
 
-    const { control, handleSubmit } = useForm<FormData>({
+    const lessonId = params.lessonId as string;
+    const courseSlug = params.slug as string;
+
+    const { control, handleSubmit, reset } = useForm<FormData>({
         resolver: zodResolver(formSchema),
         defaultValues: {
             content: "",
@@ -39,12 +43,24 @@ export const CommentInput = () => {
         onSuccess: () => {
             queryClient.invalidateQueries({
                 queryKey: queryKeys.lessonComments(lessonId),
-            })
+            });
+
+            reset();
+
+            toast.success("Cometário criado com sucesso");
+        },
+        onError: () => {
+            toast.error("Erro ao criar comentário");
         }
     })
 
     const onSubmit = (data: FormData) => {
-        console.log(data);
+        createComment({
+            courseSlug,
+            lessonId,
+            content: data.content,
+            parentId: undefined
+        })
     };
 
     return (
@@ -59,7 +75,7 @@ export const CommentInput = () => {
                 )}
             />
 
-            <Button type="submit">Comentar</Button>
+            <Button type="submit" disabled={isPending}>Comentar</Button>
         </form>
     )
 }

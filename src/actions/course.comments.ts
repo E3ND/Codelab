@@ -10,11 +10,40 @@ type CreateLessonCommentPayload = {
     parentId?: string;
 }
 
+export const getLessonComments = async (lessonId: string) => {
+    const { userId } = await getUser();
+
+    if(!userId) {
+        throw new Error("Usuário não autenticado")
+    }
+
+    const comments = await prisma.lessonComment.findMany({
+        where: {
+            lessonId,
+            parentId: null
+        },
+        include: {
+            user: true,
+            parent: true,
+            replies: {
+                include: {
+                    user: true,
+                }
+            },
+        },
+        orderBy: {
+            createdAt: "asc"
+        }
+    });
+
+    return comments;
+}
+
 export const createLessonComment = async ({ courseSlug, lessonId, content, parentId }: CreateLessonCommentPayload) => {
     const { userId } = await getUser();
 
     if(content.length > 500) {
-        throw new Error("COmentário deve ter no máximo 500 caracteres");
+        throw new Error("Comentário deve ter no máximo 500 caracteres");
     }
 
     const course = await prisma.course.findUnique({
