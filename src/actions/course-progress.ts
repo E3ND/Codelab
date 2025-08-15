@@ -2,6 +2,7 @@
 
 import { prisma } from "@/lib/prisma";
 import { getUser } from "./user";
+import { checkRole } from "@/lib/clerk";
 
 type CompleteLessonPayload = {
     courseSlug: string;
@@ -92,4 +93,30 @@ export const getCourseProgress = async (courseSlug: string) => {
     const progress = Math.round((completedLessonCount / totalLesson) * 100);
 
     return { completedLesson, progress }
+}
+
+export const deleteComment = async (commentId: string) => {
+    const { userId } = await getUser();
+
+    const isAdmin = await checkRole("admin");
+
+    const comment = await prisma.lessonComment.findUnique({
+        where: {
+            id: commentId
+        }
+    });
+
+    if(!comment) {
+        throw new Error("Comentário não encontrado");
+    }
+
+    if(!isAdmin && comment.userId !== userId) {
+        throw new Error("Você não tem permissão para deletar este comentário");
+    }
+
+    await prisma.lessonComment.delete({
+        where: {
+            id: commentId
+        }
+    })
 }

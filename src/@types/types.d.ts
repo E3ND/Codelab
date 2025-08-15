@@ -19,7 +19,7 @@ type CourseWithModulesAndLessons = Course & {
     modules: CourseModuleWithLessons[];
 }
 
-type LessonCOmmentWithUserAndReplies = LessonCOmment & {
+type LessonCOmmentWithUserAndReplies = LessonComment & {
     user: User;
     replies?: LessonCommentWithUserAndReplies[]
 }
