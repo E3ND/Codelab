@@ -15,10 +15,12 @@ model User {
   email            String            @unique
   clerkUserId      String            @unique
   imageUrl         String?
+  asaasId          String?
   createdAt        DateTime          @default(now())
   updatedAt        DateTime          @updatedAt
   completedLessons CompletedLesson[]
   LessonComments   LessonComment[]
+  Courses          CoursePurchase[]
 
   @@map("users")
 }
@@ -60,6 +62,7 @@ model Course {
   tags             CourseTag[]
   modules          CourseModule[]
   completedLessons CompletedLesson[]
+  purchases        CoursePurchase[]
   difficulty       CourseDifficulty  @default(EASY)
 
   @@map("courses")
@@ -97,27 +100,25 @@ model CourseLesson {
 }
 
 model CompletedLesson {
-  id        String   @id @default(uuid())
+  id        String       @id @default(uuid())
   lessonId  String
   courseId  String
   userId    String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  lesson CourseLesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
-  course Course       @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  user   User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+  lesson    CourseLesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  course    Course       @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("completed_lessons")
 }
 
 model LessonComment {
-  id       String  @id @default(uuid())
-  lessonId String
-  userId   String
-  content  String
-  parentId String?
-
+  id        String          @id @default(uuid())
+  lessonId  String
+  userId    String
+  content   String
+  parentId  String?
   lesson    CourseLesson    @relation(fields: [lessonId], references: [id], onDelete: Cascade)
   user      User            @relation(fields: [userId], references: [id])
   parent    LessonComment?  @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
@@ -126,4 +127,16 @@ model LessonComment {
   updatedAt DateTime        @updatedAt
 
   @@map("lesson_comments")
+}
+
+model CoursePurchase {
+  id        String   @id @default(uuid())
+  courseId  String
+  userId    String
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("course_purchases")
 }
